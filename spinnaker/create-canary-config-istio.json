@@ -1,0 +1,1 @@
+{"name":"istio-canary-config","applications":["canaryapp"],"description":"","metrics":[],"configVersion":"1","templates":{},"classifier":{"groupWeights":{},"scoreThresholds":{"pass":75,"marginal":50}},"judge":{"name":"NetflixACAJudge-v1.0","judgeConfigurations":{}}}

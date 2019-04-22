@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: canaryapp
+  namespace: canary
+spec:
+  host: canaryapp
+  subsets:
+  - name: prod
+    labels:
+      version: prod
+  - name: baseline
+    labels:
+      version: baseline
+  - name: canary
+    labels:
+      version: canary

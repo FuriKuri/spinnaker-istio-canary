@@ -1,0 +1,1 @@
+{"job":[{"type":"updateApplication","application":{"name":"canaryapp","dataSources":{"enabled":["canaryConfigs"],"disabled":[]}},"user":"[anonymous]"}],"application":"canaryapp","description":"Update Application: canaryapp"}

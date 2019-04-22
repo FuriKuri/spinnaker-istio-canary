@@ -1,0 +1,48 @@
+{
+  "applications": [
+    "canaryapp"
+  ],
+  "classifier": {
+    "groupWeights": {
+      "Group 1": 100
+    },
+    "scoreThresholds": {
+      "marginal": 75,
+      "pass": 95
+    }
+  },
+  "configVersion": "1",
+  "createdTimestamp": 1541021717129,
+  "createdTimestampIso": "2018-10-31T21:35:17.129Z",
+  "description": "",
+  "judge": {
+    "judgeConfigurations": {},
+    "name": "NetflixACAJudge-v1.0"
+  },
+  "metrics": [
+    {
+      "analysisConfigurations": {
+        "canary": {
+          "direction": "increase"
+        }
+      },
+      "groups": [
+        "Group 1"
+      ],
+      "name": "error_rate",
+      "query": {
+        "customFilterTemplate": "http_code",
+        "metricType": "external.googleapis.com/prometheus/requests",
+        "serviceType": "stackdriver",
+        "type": "stackdriver"
+      },
+      "scopeName": "default"
+    }
+  ],
+  "name": "canary-config",
+  "templates": {
+    "http_code": "metric.labels.http_code = \"500\" AND resource.label.pod_name = starts_with(\"${scope}\") AND resource.label.namespace_name = \"default\""
+  },
+  "updatedTimestamp": 1541021717129,
+  "updatedTimestampIso": "2018-10-31T21:35:17.129Z"
+}

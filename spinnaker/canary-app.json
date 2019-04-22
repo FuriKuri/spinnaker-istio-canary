@@ -1,0 +1,1 @@
+{"job":[{"type":"createApplication","application":{"cloudProviders":"kubernetes","instancePort":80,"name":"canaryapp","email":"tf.pack@gmail.com"},"user":"[anonymous]"}],"application":"canaryapp","description":"Create Application: canaryapp"}

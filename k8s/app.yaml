@@ -1,0 +1,120 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: canaryapp
+  name: canaryapp
+  namespace: canary
+spec:
+  ports:
+    - name: metrics
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: canaryapp
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: canaryapp-deployment
+  namespace: canary
+  labels:
+    app: canaryapp
+    version: live
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: canaryapp
+      version: live
+  template:
+    metadata:
+      labels:
+        app: canaryapp
+        version: live
+    spec:
+      containers:
+      - name: canaryapp
+        image: furikuri/canary:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SUCCESS_RATE
+          value: "70"
+        - name: VERSION
+          value: "latest"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: canaryapp-deployment-canary
+  namespace: canary
+  labels:
+    app: canaryapp
+    version: canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: canaryapp
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: canaryapp
+        version: canary
+    spec:
+      containers:
+      - name: canaryapp
+        image: furikuri/canary:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SUCCESS_RATE
+          value: "90"
+        - name: VERSION
+          value: "canary"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: canaryapp-deployment-baseline
+  namespace: canary
+  labels:
+    app: canaryapp
+    version: baseline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: canaryapp
+      version: baseline
+  template:
+    metadata:
+      labels:
+        app: canaryapp
+        version: baseline
+    spec:
+      containers:
+      - name: canaryapp
+        image: furikuri/canary:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SUCCESS_RATE
+          value: "70"
+        - name: VERSION
+          value: "baseline"
