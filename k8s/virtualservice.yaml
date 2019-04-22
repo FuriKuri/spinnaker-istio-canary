@@ -1,7 +1,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: canaryapp
+  name: canaryapp-gateway
   namespace: canary
 spec:
   hosts:
@@ -15,16 +15,45 @@ spec:
         port:
           number: 8080
         subset: prod
-      weight: 80
+      weight: 100
     - destination:
         host: canaryapp
         port:
           number: 8080
         subset: canary
-      weight: 10
+      weight: 0
     - destination:
         host: canaryapp
         port:
           number: 8080
         subset: baseline
-      weight: 10
+      weight: 0
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: canaryapp
+  namespace: canary
+spec:
+  hosts:
+  - canaryapp
+  http:
+  - route:
+    - destination:
+        host: canaryapp
+        port:
+          number: 8080
+        subset: prod
+      weight: 100
+    - destination:
+        host: canaryapp
+        port:
+          number: 8080
+        subset: canary
+      weight: 0
+    - destination:
+        host: canaryapp
+        port:
+          number: 8080
+        subset: baseline
+      weight: 0
