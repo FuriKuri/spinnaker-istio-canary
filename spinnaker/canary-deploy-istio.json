@@ -244,7 +244,7 @@
         }
       },
       "name": "Find Baseline Version",
-      "pipeline": "5ca08adb-12f7-4e86-bd10-5fd4d4af46de",
+      "pipeline": "f9cb170a-c824-4091-a0fe-9e0923202568",
       "refId": "8",
       "requisiteStageRefIds": [],
       "type": "findArtifactFromExecution"
@@ -254,7 +254,7 @@
       "comments": "",
       "failPipeline": true,
       "name": "Deploy to Production",
-      "pipeline": "SIMPLE_DEPLOY_PIPELINE_ID",
+      "pipeline": "f9cb170a-c824-4091-a0fe-9e0923202568",
       "pipelineParameters": {
         "successRate": "${ parameters.successRate }"
       },
@@ -319,10 +319,14 @@
     },
     {
       "account": "my-kubernetes-account",
+      "app": "canaryapp",
       "cloudProvider": "kubernetes",
+      "cluster": null,
+      "criteria": null,
+      "kind": null,
       "kinds": [
-        "Deployment",
-        "ConfigMap"
+        "configMap",
+        "deployment"
       ],
       "labelSelectors": {
         "selectors": [
@@ -336,6 +340,8 @@
         ]
       },
       "location": "canary",
+      "manifestName": null,
+      "mode": "label",
       "name": "Delete Canary",
       "options": {
         "cascading": true
@@ -348,9 +354,13 @@
     },
     {
       "account": "my-kubernetes-account",
+      "app": "canaryapp",
       "cloudProvider": "kubernetes",
+      "cluster": null,
+      "criteria": null,
+      "kind": null,
       "kinds": [
-        "Deployment"
+        "deployment"
       ],
       "labelSelectors": {
         "selectors": [
@@ -364,6 +374,8 @@
         ]
       },
       "location": "canary",
+      "manifestName": null,
+      "mode": "label",
       "name": "Delete Baseline",
       "options": {
         "cascading": true
@@ -416,7 +428,7 @@
           "apiVersion": "networking.istio.io/v1alpha3",
           "kind": "VirtualService",
           "metadata": {
-            "name": "canaryapp",
+            "name": "canaryapp-gateway",
             "namespace": "canary"
           },
           "spec": {
@@ -425,6 +437,55 @@
             ],
             "hosts": [
               "*"
+            ],
+            "http": [
+              {
+                "route": [
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "prod"
+                    },
+                    "weight": 80
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "canary"
+                    },
+                    "weight": 10
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "baseline"
+                    },
+                    "weight": 10
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "apiVersion": "networking.istio.io/v1alpha3",
+          "kind": "VirtualService",
+          "metadata": {
+            "name": "canaryapp",
+            "namespace": "canary"
+          },
+          "spec": {
+            "hosts": [
+              "canaryapp"
             ],
             "http": [
               {
@@ -490,7 +551,7 @@
           "apiVersion": "networking.istio.io/v1alpha3",
           "kind": "VirtualService",
           "metadata": {
-            "name": "canaryapp",
+            "name": "canaryapp-gateway",
             "namespace": "canary"
           },
           "spec": {
@@ -510,7 +571,77 @@
                         "number": 8080
                       },
                       "subset": "prod"
-                    }
+                    },
+                    "weight": 100
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "canary"
+                    },
+                    "weight": 0
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "baseline"
+                    },
+                    "weight": 0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "apiVersion": "networking.istio.io/v1alpha3",
+          "kind": "VirtualService",
+          "metadata": {
+            "name": "canaryapp",
+            "namespace": "canary"
+          },
+          "spec": {
+            "hosts": [
+              "canaryapp"
+            ],
+            "http": [
+              {
+                "route": [
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "prod"
+                    },
+                    "weight": 100
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "canary"
+                    },
+                    "weight": 0
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "baseline"
+                    },
+                    "weight": 0
                   }
                 ]
               }
@@ -535,5 +666,5 @@
     }
   ],
   "triggers": [],
-  "updateTs": "1555930110000"
+  "updateTs": "1555946506000"
 }

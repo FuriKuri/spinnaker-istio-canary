@@ -244,7 +244,7 @@
         }
       },
       "name": "Find Baseline Version",
-      "pipeline": "SIMPLE_DEPLOY_PIPELINE_ID",
+      "pipeline": "51bd388a-5617-4f09-ad6f-505efccc5605",
       "refId": "8",
       "requisiteStageRefIds": [],
       "type": "findArtifactFromExecution"
@@ -254,7 +254,7 @@
       "comments": "",
       "failPipeline": true,
       "name": "Deploy to Production",
-      "pipeline": "SIMPLE_DEPLOY_PIPELINE_ID",
+      "pipeline": "51bd388a-5617-4f09-ad6f-505efccc5605",
       "pipelineParameters": {
         "successRate": "${ parameters.successRate }"
       },
@@ -319,10 +319,14 @@
     },
     {
       "account": "my-kubernetes-account",
+      "app": "canaryapp",
       "cloudProvider": "kubernetes",
+      "cluster": null,
+      "criteria": null,
+      "kind": null,
       "kinds": [
-        "Deployment",
-        "ConfigMap"
+        "configMap",
+        "deployment"
       ],
       "labelSelectors": {
         "selectors": [
@@ -336,6 +340,8 @@
         ]
       },
       "location": "default",
+      "manifestName": null,
+      "mode": "label",
       "name": "Delete Canary",
       "options": {
         "cascading": true
@@ -348,9 +354,13 @@
     },
     {
       "account": "my-kubernetes-account",
+      "app": "canaryapp",
       "cloudProvider": "kubernetes",
+      "cluster": null,
+      "criteria": null,
+      "kind": null,
       "kinds": [
-        "Deployment"
+        "deployment"
       ],
       "labelSelectors": {
         "selectors": [
@@ -364,6 +374,8 @@
         ]
       },
       "location": "default",
+      "manifestName": null,
+      "mode": "label",
       "name": "Delete Baseline",
       "options": {
         "cascading": true
@@ -409,5 +421,5 @@
     }
   ],
   "triggers": [],
-  "updateTs": "1533572826000"
+  "updateTs": "1555946506000"
 }

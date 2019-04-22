@@ -1,6 +1,6 @@
 {
   "name": "ACA Deploy",
-  "application": "canaryapp",  
+  "application": "canaryapp",
   "appConfig": {},
   "description": "This pipeline deploys a canary version of the application, and a baseline (identical to production) version.\nIt compares them, and if the canary is OK, it triggers the production deployment pipeline.",
   "executionEngine": "v2",
@@ -244,7 +244,7 @@
         }
       },
       "name": "Find Baseline Version",
-      "pipeline": "819a5495-651a-415e-b2f2-66da274ac1a6",
+      "pipeline": "51bd388a-5617-4f09-ad6f-505efccc5605",
       "refId": "8",
       "requisiteStageRefIds": [],
       "type": "findArtifactFromExecution"
@@ -254,7 +254,7 @@
       "comments": "",
       "failPipeline": true,
       "name": "Deploy to Production",
-      "pipeline": "819a5495-651a-415e-b2f2-66da274ac1a6",
+      "pipeline": "51bd388a-5617-4f09-ad6f-505efccc5605",
       "pipelineParameters": {
         "successRate": "${ parameters.successRate }"
       },
@@ -319,10 +319,11 @@
     },
     {
       "account": "my-kubernetes-account",
+      "app": "canaryapp",
       "cloudProvider": "kubernetes",
       "kinds": [
-        "Deployment",
-        "ConfigMap"
+        "deployment",
+        "configMap"
       ],
       "labelSelectors": {
         "selectors": [
@@ -335,7 +336,8 @@
           }
         ]
       },
-      "location": "canary",
+      "location": "default",
+      "mode": "label",
       "name": "Delete Canary",
       "options": {
         "cascading": true
@@ -348,9 +350,10 @@
     },
     {
       "account": "my-kubernetes-account",
+      "app": "canaryapp",
       "cloudProvider": "kubernetes",
       "kinds": [
-        "Deployment"
+        "deployment"
       ],
       "labelSelectors": {
         "selectors": [
@@ -363,7 +366,8 @@
           }
         ]
       },
-      "location": "canary",
+      "location": "default",
+      "mode": "label",
       "name": "Delete Baseline",
       "options": {
         "cascading": true
@@ -398,7 +402,7 @@
       "canaryConfig": {
         "beginCanaryAnalysisAfterMins": "0",
         "canaryAnalysisIntervalMins": "5",
-        "canaryConfigId": "9e798959-507a-4399-b75f-4597dfea7872",
+        "canaryConfigId": "f53e062f-2dc7-442e-bcf4-1025ac96ff4d",
         "combinedCanaryResultStrategy": "LOWEST",
         "lifetimeDuration": "PT0H5M",
         "metricsAccountName": "canary-tutorial",
@@ -411,8 +415,7 @@
             "extendedScopeParams": {
               "perSeriesAligner": "ALIGN_RATE",
               "resourceType": "k8s_container"
-            },
-            "scopeName": "default"
+            }
           }
         ],
         "scoreThresholds": {
@@ -434,5 +437,5 @@
     }
   ],
   "triggers": [],
-  "updateTs": "1541020210000"
+  "updateTs": "1555947453000"
 }

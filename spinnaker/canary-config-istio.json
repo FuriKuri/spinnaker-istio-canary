@@ -41,8 +41,8 @@
   ],
   "name": "istio-canary-config",
   "templates": {
-    "http_code": "metric.labels.http_code = \"500\" AND resource.label.pod_name = starts_with(\"${scope}\") AND resource.label.namespace_name = \"istio\""
+    "http_code": "metric.labels.http_code = \"500\" AND resource.label.pod_name = starts_with(\"${scope}\") AND resource.label.namespace_name = \"canary\""
   },
-  "updatedTimestamp": 1541021717129,
-  "updatedTimestampIso": "2018-10-31T21:35:17.129Z"
+  "updatedTimestamp": 1555946929692,
+  "updatedTimestampIso": "2019-04-22T15:28:49.692Z"
 }

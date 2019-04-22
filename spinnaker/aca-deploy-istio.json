@@ -1,4 +1,6 @@
 {
+  "name": "Istio ACA Deploy",
+  "application": "canaryapp",
   "appConfig": {},
   "description": "This pipeline deploys a canary version of the application, and a baseline (identical to production) version.\nIt compares them, and if the canary is OK, it triggers the production deployment pipeline.",
   "executionEngine": "v2",
@@ -243,7 +245,7 @@
         }
       },
       "name": "Find Baseline Version",
-      "pipeline": "5ca08adb-12f7-4e86-bd10-5fd4d4af46de",
+      "pipeline": "f9cb170a-c824-4091-a0fe-9e0923202568",
       "refId": "8",
       "requisiteStageRefIds": [],
       "type": "findArtifactFromExecution"
@@ -253,7 +255,7 @@
       "comments": "",
       "failPipeline": true,
       "name": "Deploy to Production",
-      "pipeline": "5ca08adb-12f7-4e86-bd10-5fd4d4af46de",
+      "pipeline": "f9cb170a-c824-4091-a0fe-9e0923202568",
       "pipelineParameters": {
         "successRate": "${ parameters.successRate }"
       },
@@ -321,8 +323,8 @@
       "app": "canaryapp",
       "cloudProvider": "kubernetes",
       "kinds": [
-        "Deployment",
-        "ConfigMap"
+        "configMap",
+        "deployment"
       ],
       "labelSelectors": {
         "selectors": [
@@ -336,8 +338,7 @@
         ]
       },
       "location": "canary",
-      "manifestName": " ",
-      "mode": "static",
+      "mode": "label",
       "name": "Delete Canary",
       "options": {
         "cascading": true
@@ -350,9 +351,10 @@
     },
     {
       "account": "my-kubernetes-account",
+      "app": "canaryapp",
       "cloudProvider": "kubernetes",
       "kinds": [
-        "Deployment"
+        "deployment"
       ],
       "labelSelectors": {
         "selectors": [
@@ -365,7 +367,8 @@
           }
         ]
       },
-      "location": "default",
+      "location": "canary",
+      "mode": "label",
       "name": "Delete Baseline",
       "options": {
         "cascading": true
@@ -401,7 +404,7 @@
       "canaryConfig": {
         "beginCanaryAnalysisAfterMins": "0",
         "canaryAnalysisIntervalMins": "5",
-        "canaryConfigId": "aa39ddaa-a6df-4ae1-b7c5-3ba59d5aaf16",
+        "canaryConfigId": "61604386-28a6-4ca1-8606-e90a7bd42f07",
         "combinedCanaryResultStrategy": "LOWEST",
         "lifetimeDuration": "PT0H5M",
         "metricsAccountName": "canary-tutorial",
@@ -414,8 +417,7 @@
             "extendedScopeParams": {
               "perSeriesAligner": "ALIGN_RATE",
               "resourceType": "k8s_container"
-            },
-            "scopeName": "default"
+            }
           }
         ],
         "scoreThresholds": {
@@ -437,15 +439,13 @@
     {
       "account": "my-kubernetes-account",
       "cloudProvider": "kubernetes",
-      "isNew": true,
-      "manifest": null,
       "manifestArtifactAccount": "kubernetes",
       "manifests": [
         {
           "apiVersion": "networking.istio.io/v1alpha3",
           "kind": "VirtualService",
           "metadata": {
-            "name": "canaryapp",
+            "name": "canaryapp-gateway",
             "namespace": "canary"
           },
           "spec": {
@@ -454,6 +454,55 @@
             ],
             "hosts": [
               "*"
+            ],
+            "http": [
+              {
+                "route": [
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "prod"
+                    },
+                    "weight": 80
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "canary"
+                    },
+                    "weight": 10
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "baseline"
+                    },
+                    "weight": 10
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "apiVersion": "networking.istio.io/v1alpha3",
+          "kind": "VirtualService",
+          "metadata": {
+            "name": "canaryapp",
+            "namespace": "canary"
+          },
+          "spec": {
+            "hosts": [
+              "canaryapp"
             ],
             "http": [
               {
@@ -509,21 +558,18 @@
       ],
       "skipExpressionEvaluation": false,
       "source": "text",
-      "type": "deployManifest",
-      "versioned": null
+      "type": "deployManifest"
     },
     {
       "account": "my-kubernetes-account",
       "cloudProvider": "kubernetes",
-      "isNew": true,
-      "manifest": null,
       "manifestArtifactAccount": "kubernetes",
       "manifests": [
         {
           "apiVersion": "networking.istio.io/v1alpha3",
           "kind": "VirtualService",
           "metadata": {
-            "name": "canaryapp",
+            "name": "canaryapp-gateway",
             "namespace": "canary"
           },
           "spec": {
@@ -543,7 +589,77 @@
                         "number": 8080
                       },
                       "subset": "prod"
-                    }
+                    },
+                    "weight": 100
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "canary"
+                    },
+                    "weight": 0
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "baseline"
+                    },
+                    "weight": 0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "apiVersion": "networking.istio.io/v1alpha3",
+          "kind": "VirtualService",
+          "metadata": {
+            "name": "canaryapp",
+            "namespace": "canary"
+          },
+          "spec": {
+            "hosts": [
+              "canaryapp"
+            ],
+            "http": [
+              {
+                "route": [
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "prod"
+                    },
+                    "weight": 100
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "canary"
+                    },
+                    "weight": 0
+                  },
+                  {
+                    "destination": {
+                      "host": "canaryapp",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "baseline"
+                    },
+                    "weight": 0
                   }
                 ]
               }
@@ -565,10 +681,9 @@
       ],
       "skipExpressionEvaluation": false,
       "source": "text",
-      "type": "deployManifest",
-      "versioned": null
+      "type": "deployManifest"
     }
   ],
   "triggers": [],
-  "updateTs": "1555931829000"
+  "updateTs": "1555948218000"
 }
